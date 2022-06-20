@@ -2,32 +2,31 @@ import { useState, useRef, useEffect } from 'react';
 import './App.css';
 
 const profile = {
-  "mod_scheme": "gmsk",
-  "checksum_scheme": "crc32",
-  "inner_fec_scheme": "v27",
-  "outer_fec_scheme": "none",
-  "frame_length": 34,
-  "modulation": {
-    "center_frequency": 19000,
-    "gain": 0.02
+  mod_scheme: 'gmsk',
+  checksum_scheme: 'crc32',
+  inner_fec_scheme: 'v27',
+  outer_fec_scheme: 'none',
+  frame_length: 34,
+  modulation: {
+    center_frequency: 19000,
+    gain: 0.02,
   },
-  "interpolation": {
-    "shape": "rrcos",
-    "samples_per_symbol": 14,
-    "symbol_delay": 4,
-    "excess_bandwidth": 0.35
+  interpolation: {
+    shape: 'rrcos',
+    samples_per_symbol: 14,
+    symbol_delay: 4,
+    excess_bandwidth: 0.35,
   },
-  "encoder_filters": {
-    "dc_filter_alpha": 0.01
+  encoder_filters: {
+    dc_filter_alpha: 0.01,
   },
-  "resampler": {
-    "delay": 13,
-    "bandwidth": 0.45,
-    "attenuation": 60,
-    "filter_bank_size": 64
-  }
+  resampler: {
+    delay: 13,
+    bandwidth: 0.45,
+    attenuation: 60,
+    filter_bank_size: 64,
+  },
 };
-
 
 let created = false;
 const createTransmitter = () => {
@@ -47,10 +46,8 @@ function App() {
   useEffect(() => {
     const onReceive = (payload) => {
       const newMessage = Quiet.ab2str(payload);
-      console.log(newMessage)
-      setMessages([...messages, newMessage]);
+      console.log(newMessage);
     };
-
 
     window.Quiet.receiver({
       profile,
@@ -74,12 +71,6 @@ function App() {
           <input ref={inputRef} type="text" name="message" />
           <button type="submit">Send</button>
         </form>
-
-        <div>
-          {messages.map((message) => (
-            <p>{message}</p>
-          ))}
-        </div>
       </div>
     </div>
   );
