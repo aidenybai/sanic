@@ -1,3 +1,3 @@
-# HackDrop
+# sanic
 
-The web-based Airdrop for hackathons
+💬 Imagine messaging but ultrasonic

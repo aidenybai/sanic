@@ -1,38 +1,86 @@
-import { useState } from 'react';
-import reactLogo from '/react.svg';
-import millionLogo from '/million.svg';
+import { useState, useRef, useEffect } from 'react';
 import './App.css';
 
+const profile = {
+  "mod_scheme": "gmsk",
+  "checksum_scheme": "crc32",
+  "inner_fec_scheme": "v27",
+  "outer_fec_scheme": "none",
+  "frame_length": 34,
+  "modulation": {
+    "center_frequency": 19000,
+    "gain": 0.02
+  },
+  "interpolation": {
+    "shape": "rrcos",
+    "samples_per_symbol": 14,
+    "symbol_delay": 4,
+    "excess_bandwidth": 0.35
+  },
+  "encoder_filters": {
+    "dc_filter_alpha": 0.01
+  },
+  "resampler": {
+    "delay": 13,
+    "bandwidth": 0.45,
+    "attenuation": 60,
+    "filter_bank_size": 64
+  }
+};
+
+
+let created = false;
+const createTransmitter = () => {
+  if (created) return;
+  created = true;
+  return Quiet.transmitter({
+    profile,
+    onFinish: () => {},
+  });
+};
+
 function App() {
-  const [count, setCount] = useState(0);
+  const [messages, setMessages] = useState([]);
+  const [transmitter] = useState(createTransmitter());
+  const inputRef = useRef();
+
+  useEffect(() => {
+    const onReceive = (payload) => {
+      const newMessage = Quiet.ab2str(payload);
+      console.log(newMessage)
+      setMessages([...messages, newMessage]);
+    };
+
+
+    window.Quiet.receiver({
+      profile,
+      onReceive,
+    });
+  }, []);
 
   return (
     <div className="App">
-      <div>
-        <a href="https://millionjs.org" target="_blank">
-          <img src={millionLogo} className="logo" alt="Million logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo" alt="React logo" />
-        </a>
-      </div>
-      <h1>Million + React</h1>
+      <img src="/sanic.webp" className="logo" />
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+        <h1>Sanic</h1>
+        <p>Imagine messaging but ultrasonic</p>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            transmitter?.transmit(Quiet.str2ab(inputRef.current.value));
+            setMessages([...messages, inputRef.current.value]);
+          }}
+        >
+          <input ref={inputRef} type="text" name="message" />
+          <button type="submit">Send</button>
+        </form>
+
+        <div>
+          {messages.map((message) => (
+            <p>{message}</p>
+          ))}
+        </div>
       </div>
-      <p className="read-the-docs">
-        Click on the Million and React logos to learn more
-      </p>
-      <p>
-        <a href="https://github.com/aidenybai/million-react">
-          Fork the GitHub repo
-        </a>
-      </p>
     </div>
   );
 }
